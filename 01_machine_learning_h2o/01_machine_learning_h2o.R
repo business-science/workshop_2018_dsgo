@@ -19,7 +19,6 @@ library(tidyquant)
 library(h2o)
 library(recipes)
 library(rsample)
-library(yardstick)
 
 
 # 2.0 DATA ----
@@ -143,39 +142,7 @@ test_tbl  <- bake(rec_obj, test_raw_tbl)
 
 # 6.0 MODELING -----
 
-# 6.1 Logistic Regression ----
-
-model_glm <- glm(TARGET ~ ., data = train_tbl, family = "binomial") # error
-
-train_tbl %>% 
-    select_if(is.factor) %>%
-    map_df(~ levels(.) %>% length()) %>%
-    gather() %>%
-    arrange(value)
-
-start <- Sys.time()
-model_glm <- glm(TARGET ~ ., 
-                 data = train_tbl %>% select(-c(FLAG_MOBIL, FLAG_DOCUMENT_12)), 
-                 family = "binomial")
-Sys.time() - start
-
-predict_glm <- predict(model_glm, 
-                       newdata = test_tbl %>% select(-c(FLAG_MOBIL, FLAG_DOCUMENT_12)),
-                       type = "response")
-
-tibble(actual  = test_tbl$TARGET,
-       predict = predict_glm) %>%
-    mutate(predict_class = ifelse(predict > 0.5, 1, 0) %>% as.factor()) %>%
-    roc_auc(actual, predict)
-# [1] 0.7424697
-
-
-rm(model_glm)
-
-
-# BREAK 1 ----
-
-# 6.2 H2O Models ----
+# 6.1 H2O Setup ----
 
 # H2O Docs: http://docs.h2o.ai
 
@@ -186,6 +153,8 @@ test_h2o  <- as.h2o(test_tbl)
 
 y <- "TARGET"
 x <- setdiff(names(train_h2o), y)
+
+# 6.2 H2O Models ----
 
 # 6.2.1 GLM (Elastic Net) ----
 
@@ -280,7 +249,7 @@ Sys.time() - start
 
 # Time difference of 15.42436 mins
 
-# BREAK 2 -----
+# BREAK 1 -----
 
 # Leaderboard
 automl_results@leaderboard %>%
