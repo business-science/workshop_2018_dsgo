@@ -12,7 +12,7 @@ ___Get ready to learn how to predict credit defaults with `R` + `H2O`!___
 
 - Best Kagglers got 0.80 AUC with more 100's of manhours, feature engineering, combining more data sets 
 
-- We'll get 0.75 AUC in 30 minutes of coding (+1 hour of explaining)
+- We'll get 0.75 AUC in 30 minutes of coding (+1.5 hour of explaining)
 
 
 
