@@ -36,8 +36,6 @@ feature_description_tbl <- read_csv("00_data/HomeCredit_columns_description.csv"
 
 feature_description_tbl
 
-feature_description_tbl
-
 # 3.0 SIZE THE PROBLEM ----
 
 # How many defaulters?
@@ -77,6 +75,8 @@ size_problem_tbl
 
 set.seed(1234)
 split_obj_1 <- initial_split(application_train_raw_tbl, strata = "TARGET", prop = 0.2)
+
+set.seed(1234)
 split_obj_2 <- initial_split(training(split_obj_1), strata = "TARGET", prop = 0.8)
 
 # Working with 20% sample of "Big Data"
@@ -160,7 +160,8 @@ rec_obj <- recipe(TARGET ~ ., data = train_raw_tbl) %>%
 train_tbl <- bake(rec_obj, train_raw_tbl)
 test_tbl  <- bake(rec_obj, test_raw_tbl)
 
-
+train_tbl %>% 
+    glimpse()
 
 # 7.0 MODELING -----
 
@@ -194,10 +195,11 @@ h2o_glm <- h2o.glm(
     
 )
 Sys.time() - start
+# Time difference of 6.508575 secs
 
 h2o.performance(h2o_glm, valid = TRUE) %>%
     h2o.auc()
-# [1] 0.7410846
+# [1] 0.7384649
 
 h2o_glm@allparameters
 
@@ -220,10 +222,11 @@ h2o_gbm <- h2o.gbm(
     learn_rate = 0.1
 )
 Sys.time() - start
+# Time difference of 29.29766 secs
 
 h2o.performance(h2o_gbm, valid = TRUE) %>%
     h2o.auc()
-# [1] 0.7415395
+# [1] 0.7384649
 
 h2o_gbm@allparameters
 
@@ -245,10 +248,11 @@ h2o_rf <- h2o.randomForest(
     
 )
 Sys.time() - start
+# Time difference of 27.21049 secs
 
 h2o.performance(h2o_rf, valid = TRUE) %>%
     h2o.auc()
-# [1] 0.7201136
+# [1] 0.7242162
 
 h2o_rf@allparameters
 
@@ -262,19 +266,24 @@ h2o_rf@allparameters
 
 # 7.3 Saving & Loading Models ----
 
-h2o.saveModel(h2o_automl_se, "00_models")
+h2o.saveModel(h2o_gbm, "00_models")
 
-h2o.loadModel("00_models/StackedEnsemble_AllModels_0_AutoML_20180904_113915")
+h2o.loadModel("")
 
 # 8.0 Making Predictions -----
 
-prediction_h2o <- h2o.predict(h2o_automl_se, newdata = test_h2o)
+prediction_h2o <- h2o.predict(h2o_gbm, newdata = test_h2o)
 
 prediction_tbl <- prediction_h2o %>%
     as.tibble() %>%
     bind_cols(
-        test_tbl %>% select(TARGET)
+        test_tbl %>% select(TARGET, SK_ID_CURR)
     )
+
+prediction_tbl
+
+prediction_tbl %>%
+    filter(TARGET == "1")
 
 
 # 9.0 PERFORMANCE (SKIPPING) -----
