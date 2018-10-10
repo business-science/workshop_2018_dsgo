@@ -5,16 +5,16 @@ ___Get ready to learn how to predict credit defaults with `R` + `H2O`!___
 ## Program
 
 <a href="https://www.kaggle.com/c/home-credit-default-risk">
-<img src="00_images/kaggle_credit_default.png" style="width:30%;" class="pull-right">
+<img src="00_images/kaggle_credit_default.png" width="30%" align="right">
 </a>
 
 - Data is Credit Loan Applications to a Bank. 
 
 - Best Kagglers got 0.80 AUC with more 100's of manhours, feature engineering, combining more data sets 
 
-- We'll get 0.75 AUC in 30 minutes of coding
+- We'll get 0.75 AUC in 30 minutes of coding (+1 hour of explaining)
 
-<div class="clearfix"></div>
+
 
 
 ## Data
@@ -41,7 +41,7 @@ The goal of Module 01 - H2O is to get you experience with:
 ### Becoming A Data Science Rockstar
 
 <a href="https://university.business-science.io/p/hr201-using-machine-learning-h2o-lime-to-predict-employee-turnover/?product_id=635023&coupon_code=DSGO20">
-<img src="00_images/DS4B_201_R_Course.png" style="width:30%;" class="pull-right">
+<img src="00_images/DS4B_201_R_Course.png" width="30%" align="right">
 </a>
 
 - This 3 hour workshop will teach you some of the latest tools & techniques for Machine Learning in business
@@ -69,13 +69,13 @@ The goal of Module 01 - H2O is to get you experience with:
 
 ### Option 1: RStudio IDE Desktop + Install R Packages
 
-#### Step 1: Install R and RStudio IDE
+###### Step 1: Install R and RStudio IDE
 
 - [Download and Install R](https://cloud.r-project.org/)
 
 - [Download RStudio IDE Desktop](https://www.rstudio.com/products/rstudio/download/)
 
-#### Step 2: Open Rstudio and run the following scripts
+###### Step 2: Open Rstudio and run the following scripts
 
 ```
 pkgs <- c("h2o", "tidyverse", "rsample", "recipes")
@@ -91,7 +91,7 @@ h2o.init()
 
 If H2O cannot connect, you probably need to install Java. 
 
-#### Step 3: Load the Project From GitHub
+###### Step 3: Load the Project From GitHub
 
 _Wait for instructions from Matt._
 
@@ -99,24 +99,24 @@ The URL for the GitHub project is:
 
 https://github.com/business-science/workshop_2018_dsgo
 
-### Option 1: If You Have Docker Installed
+### Option 2: If You Have Docker Installed
 
-#### Step 0: Docker Installation (Takes Time)
+###### Step 0: Docker Installation (Takes Time)
 
 _Skip this step if you already have Docker Community Edition installed_
 
 [Docker Community Edition Installation Instructions](https://store.docker.com/search?offering=community&type=edition)
 
 
-#### Step 1: Run the DSGO Workshop Docker Image
+###### Step 1: Run the DSGO Workshop Docker Image
 
 In a terminal / command line, run the following command to download and install the workshop container. This will take a few minutes to load. 
 
 ```
-docker run -d -p 8787:8787 -e PASSWORD=rstudio -e ROOT=TRUE mdancho/workshop_2018_dsgo
+docker run -d -p 8787:8787 -v "`pwd`":/home/rstudio/working -e PASSWORD=rstudio -e ROOT=TRUE mdancho/workshop_2018_dsgo
 ```
 
-#### Step 3: Fire Up RStudio IDE in your Browser
+###### Step 3: Fire Up RStudio IDE in your Browser
 
 Go into you favorite browser (I'll be using Chrome), and enter the following in the web address field.
 
@@ -124,10 +124,10 @@ Go into you favorite browser (I'll be using Chrome), and enter the following in 
 localhost:8787
 ```
 
-#### Step 4: Log into RStudio Server
+###### Step 4: Log into RStudio Server
 
 <a href="https://www.kaggle.com/c/home-credit-default-risk">
-<img src="00_images/rstudio_server.png" style="width:30%;" class="pull-right">
+<img src="00_images/rstudio_server.png" width="30%" align="right">
 </a>
 
 Use the following credentials.
@@ -138,7 +138,7 @@ Use the following credentials.
 <div class="clearfix"></div>
 
 
-#### Step 5: Load the Project From GitHub
+###### Step 5: Load the Project From GitHub
 
 _Wait for instructions from Matt._
 
@@ -146,7 +146,7 @@ The URL for the GitHub project is:
 
 https://github.com/business-science/workshop_2018_dsgo
 
----
+
 
 ---
 
