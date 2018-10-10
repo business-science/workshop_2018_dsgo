@@ -1,29 +1,27 @@
 # MACHINE LEARNING ----
 
-# IMPORTANT: RESTART R SESSION PRIOR TO BEGINNING ----
-
 # Objectives:
 #   Size the problem
-#   Prepare the data for H2O & Logistic Regression
-#   Show simple base R methods: Logistic Regression
-#   Learn performance methods: H2O GLM, GBM, RF
-#   Learn Automated ML
+#   Prepare the data for Binary Classification
+#   Build models with H2O: GLM, GBM, RF
+#   Inspect Features with LIME
 
-# Estimated time: 2.5 hours
+# Estimated time: 2-3 hours
 
 
 
 # 1.0 LIBRARIES ----
-library(tidyverse)
-library(tidyquant)
-library(h2o)
-library(recipes)
-library(rsample)
+library(tidyverse)   # Workhorse with dplyr, ggplot2, etc
+library(h2o)         # High Performance Machine Learning
+library(recipes)     # Preprocessing
+library(rsample)     # Sampling
+library(lime)        # Black-box explanations
 
 
 # 2.0 DATA ----
 
 unzip("00_data/application_train.csv.zip", exdir = "00_data/")
+
 
 # Loan Applications (50% of data)
 application_train_raw_tbl <- read_csv("00_data/application_train.csv")
@@ -35,6 +33,8 @@ glimpse(application_train_raw_tbl)
 
 # Column (Feature) Descriptions
 feature_description_tbl <- read_csv("00_data/HomeCredit_columns_description.csv")
+
+feature_description_tbl
 
 feature_description_tbl
 
@@ -64,14 +64,14 @@ size_problem_tbl <- application_train_raw_tbl %>%
 size_problem_tbl
 
 
-# EXPLORATORY DATA ANALYSIS (SKIPPED) ----
+# 4.0 EXPLORATORY DATA ANALYSIS (SKIPPED) ----
 #   SKIPPED - Very Important!
 #   Efficient exploration of features to find which to focus on
 #   Critical Step in Business Science Problem Framework
 #   Taught in my DS4B 201-R Course
 
 
-# 4.0 SPLIT DATA ----
+# 5.0 SPLIT DATA ----
 
 # Resource: https://tidymodels.github.io/rsample/
 
@@ -94,7 +94,7 @@ test_raw_tbl %>%
 
 
 
-# 5.0 PREPROCESSING ----
+# 6.0 PREPROCESSING ----
 
 # Fix issues with data: 
 #   Some Numeric data with low number of unique values should be Factor (Categorical)
@@ -122,7 +122,29 @@ string2factor_names <- train_raw_tbl %>%
 string2factor_names
 
 
-# 5.2 Recipes ----
+# 6.2 Missing Data ----
+
+# Transform
+missing_tbl <- train_raw_tbl %>%
+    summarize_all(.funs = funs(sum(is.na(.)) / length(.))) %>%
+    gather() %>%
+    arrange(desc(value))
+
+missing_tbl
+
+# Visualize
+missing_tbl %>%
+    filter(value > 0) %>%
+    mutate(key = as_factor(key) %>% fct_rev()) %>%
+    ggplot(aes(x = value, y = key)) +
+    geom_point() +
+    geom_segment(aes(xend = 0, yend = key)) +
+    expand_limits(x = c(0, 1)) +
+    scale_x_continuous(labels = scales::percent) +
+    labs(title = "Percentage Missing") 
+
+
+# 6.3 Recipes ----
 
 # Resource: https://tidymodels.github.io/recipes/
 
@@ -140,9 +162,9 @@ test_tbl  <- bake(rec_obj, test_raw_tbl)
 
 
 
-# 6.0 MODELING -----
+# 7.0 MODELING -----
 
-# 6.1 H2O Setup ----
+# 7.1 H2O Setup ----
 
 # H2O Docs: http://docs.h2o.ai
 
@@ -154,9 +176,9 @@ test_h2o  <- as.h2o(test_tbl)
 y <- "TARGET"
 x <- setdiff(names(train_h2o), y)
 
-# 6.2 H2O Models ----
+# 7.2 H2O Models ----
 
-# 6.2.1 GLM (Elastic Net) ----
+# 7.2.1 GLM (Elastic Net) ----
 
 start <- Sys.time()
 h2o_glm <- h2o.glm(
@@ -179,7 +201,7 @@ h2o.performance(h2o_glm, valid = TRUE) %>%
 
 h2o_glm@allparameters
 
-# 6.2.2 GBM ----
+# 7.2.2 GBM ----
 
 # Resource: https://blog.h2o.ai/2016/06/h2o-gbm-tuning-tutorial-for-r/
 
@@ -205,7 +227,7 @@ h2o.performance(h2o_gbm, valid = TRUE) %>%
 
 h2o_gbm@allparameters
 
-# 6.2.3 Random Forest ----
+# 7.2.3 Random Forest ----
 
 start <- Sys.time()
 h2o_rf <- h2o.randomForest(
@@ -231,41 +253,20 @@ h2o.performance(h2o_rf, valid = TRUE) %>%
 h2o_rf@allparameters
 
 
+# 7.2.4 Automated Machine Learning (SKIPPING) ----
 
-# 6.3 H2O AutoML ----
+#   Deep Learning
+#   Stacked Ensembles
+#   Grid Search
 
-# 6.3.1 h2o.automl() ----
 
-start <- Sys.time()
-automl_results <- h2o.automl(
-    x = x,
-    y = y,
-    training_frame   = train_h2o,
-    validation_frame = test_h2o,
-    max_runtime_secs = 900,
-    seed = 1234
-)
-Sys.time() - start
-
-# Time difference of 15.42436 mins
-
-# BREAK 1 -----
-
-# Leaderboard
-automl_results@leaderboard %>%
-    as.tibble()
-
-# 6.3.2 Getting Models ----
-
-h2o_automl_se  <- h2o.getModel("StackedEnsemble_BestOfFamily_0_AutoML_20181007_141010")
-
-# 6.3.3 Saving & Loading ----
+# 7.3 Saving & Loading Models ----
 
 h2o.saveModel(h2o_automl_se, "00_models")
 
 h2o.loadModel("00_models/StackedEnsemble_AllModels_0_AutoML_20180904_113915")
 
-# 7.0 Making Predictions -----
+# 8.0 Making Predictions -----
 
 prediction_h2o <- h2o.predict(h2o_automl_se, newdata = test_h2o)
 
@@ -276,14 +277,74 @@ prediction_tbl <- prediction_h2o %>%
     )
 
 
-# 8.0 PERFORMANCE (SKIPPING) -----
+# 9.0 PERFORMANCE (SKIPPING) -----
 
 #   Very Important
+#   Adjusting Threshold
 #   ROC Plot, Precision vs Recall
 #   Gain & Lift - Important for executives
 
 
-# 9.0 LIME
+# 10.0 EXPLANATIONS LIME ----
+
+# Create explainer
+explainer <- train_tbl %>%
+    select(-TARGET) %>%
+    lime(
+        model           = h2o_gbm,
+        bin_continuous  = TRUE,
+        n_bins          = 4,
+        quantile_bins   = TRUE
+    )
+
+# Create explanation
+explanation <- test_tbl %>%
+    filter(TARGET == "1") %>%
+    slice(1) %>%
+    select(-TARGET) %>%
+    lime::explain(
+        explainer = explainer,
+        n_features = 8,
+        n_permutations = 10000,
+        dist_fun = "gower",
+        kernel_width   = 1.5,
+        feature_select = "lasso_path",
+        # n_labels   = 2,
+        labels         = "p1"
+    )
+
+explanation %>%
+    as.tibble() %>%
+    glimpse()
+
+# Visualize
+plot_features(explanation)
+
+
+# What are Ext_Source?
+
+feature_description_tbl %>%
+    filter(str_detect(Row, "EXT_SOURCE")) %>%
+    View()
+
+# Equifax, Experian, TransUnion
+
+# 11.0 OPTIMIZATION (SKIPPING) ----
+
+#   Expected Value
+#   Threshold Optimization - Find the balance of False Positives & False Negatives that maximizes revenue
+#   Sensitivity Analysis - Taking into account what assumptions we are inputing into the model
+
+
+# 12.0 RECOMMENDATION ALGORITHMS (SKIPPING) ----
+
+#   3 Step Process:
+#       1. Discretized Correlation Visualization (Correlation Funnel)
+#       2. Fill out our Recommendation Algorithm Worksheet
+#       3. Implement Strategies into R Code
+#   Correlation Funnel - S&P Loved This!!
+
+
 
 
 

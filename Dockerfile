@@ -15,9 +15,8 @@ RUN apt-get update -qq \
     && R CMD javareconf \
     && install2.r --error --deps TRUE \
         h2o \
-        tidyquant \
         recipes \
         rsample \
-        yardstick
+        lime
         
     
