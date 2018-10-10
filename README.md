@@ -78,7 +78,7 @@ The goal of Module 01 - H2O is to get you experience with:
 ###### Step 2: Open Rstudio and run the following scripts
 
 ```
-pkgs <- c("h2o", "tidyverse", "rsample", "recipes")
+pkgs <- c("h2o", "tidyverse", "rsample", "recipes", "lime")
 install.packages(pkgs)
 ```
 
