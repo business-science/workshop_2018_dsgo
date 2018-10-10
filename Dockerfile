@@ -12,6 +12,7 @@ RUN apt-get update -qq \
     ccache \
     default-jdk \
     default-jre \
+    libmagick++-dev \
     && R CMD javareconf \
     && install2.r --error --deps TRUE \
         h2o \
