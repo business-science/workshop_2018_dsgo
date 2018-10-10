@@ -1,4 +1,4 @@
-# DSGO 2018 Workshop - Business Science
+# DSGO 2018 - Machine Learning With R + H2O Workshop
 
 ___Get ready to learn how to predict credit defaults with `R` + `H2O`!___
 
@@ -28,9 +28,9 @@ ___Get ready to learn how to predict credit defaults with `R` + `H2O`!___
 - Will work with sampled data 20% to keep manageable
 
 
-## Module 01 - H2O
+## Machine Learning With H2O
 
-The goal of Module 01 - H2O is to get you experience with:
+The goal of ___Machine Learning with H2O___ is to get you experience with:
 
 1. The R programming language
 
