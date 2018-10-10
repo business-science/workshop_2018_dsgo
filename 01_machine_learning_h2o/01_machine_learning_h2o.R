@@ -21,7 +21,7 @@ library(lime)        # Black-box explanations
 # 2.0 DATA ----
 
 unzip("00_data/application_train.csv.zip", exdir = "00_data/")
-
+unzip("00_data/HomeCredit_columns_description.csv.zip", exdir = "00_data/")
 
 # Loan Applications (50% of data)
 application_train_raw_tbl <- read_csv("00_data/application_train.csv")
