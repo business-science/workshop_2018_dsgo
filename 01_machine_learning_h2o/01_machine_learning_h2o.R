@@ -67,6 +67,7 @@ size_problem_tbl
 #   Efficient exploration of features to find which to focus on
 #   Critical Step in Business Science Problem Framework
 #   Taught in my DS4B 201-R Course
+#   IMPORTANT: ATTEND MY TALK TOMORROW
 
 
 # 5.0 SPLIT DATA ----
@@ -185,10 +186,10 @@ start <- Sys.time()
 h2o_glm <- h2o.glm(
     x = x,
     y = y,
-    training_frame = train_h2o,
+    training_frame   = train_h2o,
     validation_frame = test_h2o,
     nfolds = 5,
-    seed = 1234,
+    seed   = 1234,
     
     # GLM
     family = "binomial"
@@ -211,14 +212,14 @@ start <- Sys.time()
 h2o_gbm <- h2o.gbm(
     x = x,
     y = y,
-    training_frame = train_h2o,
+    training_frame   = train_h2o,
     validation_frame = test_h2o,
     nfolds = 5,
-    seed = 1234,
+    seed   = 1234,
     
     # GBM
-    ntrees = 50,
-    max_depth = 5,
+    ntrees     = 100,
+    max_depth  = 5,
     learn_rate = 0.1
 )
 Sys.time() - start
@@ -226,7 +227,7 @@ Sys.time() - start
 
 h2o.performance(h2o_gbm, valid = TRUE) %>%
     h2o.auc()
-# [1] 0.7384649
+# [1] 0.7369739
 
 h2o_gbm@allparameters
 
@@ -242,9 +243,8 @@ h2o_rf <- h2o.randomForest(
     seed = 1234,
     
     # RF
-    ntrees = 50,
-    max_depth = 5,
-    balance_classes = TRUE
+    ntrees          = 100,
+    max_depth       = 5
     
 )
 Sys.time() - start
@@ -252,16 +252,19 @@ Sys.time() - start
 
 h2o.performance(h2o_rf, valid = TRUE) %>%
     h2o.auc()
-# [1] 0.7242162
+# [1] 0.7259596
 
 h2o_rf@allparameters
 
 
-# 7.2.4 Automated Machine Learning (SKIPPING) ----
+# CHALLENGE: DEEP LEARNING ----
 
-#   Deep Learning
-#   Stacked Ensembles
-#   Grid Search
+# 10 Minutes
+# Create a Deep Learning Algorithm with H2O
+# h2o.deeplearning
+# 10 epochs
+# 3 hidden layers: 100, 50, 10,
+
 
 
 # 7.3 Saving & Loading Models ----
@@ -292,6 +295,9 @@ prediction_tbl %>%
 #   Adjusting Threshold
 #   ROC Plot, Precision vs Recall
 #   Gain & Lift - Important for executives
+
+h2o_gbm %>%
+    h2o.performance(valid = TRUE)
 
 
 # 10.0 EXPLANATIONS LIME ----
@@ -353,8 +359,53 @@ feature_description_tbl %>%
 #       3. Implement Strategies into R Code
 #   Correlation Funnel - S&P Loved This!!
 
+# BONUS #1: GRIDSEARCH ----
+
+# GBM hyperparamters
+gbm_params <- list(learn_rate       = c(0.01, 0.1),
+                   max_depth        = c(3, 5, 9))
+gbm_params
+
+# Train and validate a cartesian grid of GBMs
+gbm_grid <- h2o.grid("gbm", 
+                     x = x, 
+                     y = y,
+                     grid_id = "gbm_grid1",
+                     training_frame   = train_h2o,
+                     validation_frame = test_h2o,
+                     ntrees = 100,
+                     seed   = 1234,
+                     hyper_params = gbm_params)
+
+h2o.getGrid(grid_id = "gbm_grid",
+            sort_by = "auc",
+            decreasing = TRUE)
+
+h2o.getModel("gbm_grid1_model_1") %>%
+    h2o.auc(valid = TRUE)
+# [1] 0.7459666
 
 
+# BONUS #2:  AUTOML ----
+
+start <- Sys.time()
+h2o_automl <- h2o.automl(
+    x = x,
+    y = y,
+    training_frame = train_h2o,
+    validation_frame = test_h2o,
+    nfolds = 5,
+    seed = 1234,
+    
+    # AutoML
+    max_runtime_secs = 300
+)
+Sys.time() - start
+# Time difference of 5.243099 mins
 
 
+h2o_automl@leaderboard
 
+h2o_automl@leader %>%
+    h2o.auc(valid = TRUE)
+# [1] 0.7423596
