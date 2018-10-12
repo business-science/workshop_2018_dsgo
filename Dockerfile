@@ -1,8 +1,6 @@
 ####### Dockerfile #######
 FROM rocker/tidyverse:3.4.3
 
-
-
 RUN apt-get update -qq \
     && apt-get -y --no-install-recommends install \
 	libglu1-mesa-dev \
@@ -18,6 +16,7 @@ RUN apt-get update -qq \
         h2o \
         recipes \
         rsample \
-        lime
+        lime \
+        tidyquant
         
     
